@@ -8,30 +8,28 @@ def extract_average_color(image, x, y, width, height):
     average_color = np.mean(region, axis=(0, 1))
     return average_color
 
+
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 glasses_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye_tree_eyeglasses.xml')
 
 def detect_glasses(face_img):
     """Detect if the person is wearing glasses based on eye detection."""
     gray = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
-    
+
     eyes = eye_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
-    
+
     for (ex, ey, ew, eh) in eyes:
         cv2.rectangle(face_img, (ex, ey), (ex + ew, ey + eh), (255, 0, 0), 2)
 
-    if len(eyes) >= 2:
-        glasses = glasses_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
-        
-        # Draw rectangles around detected glasses for visualization
-        for (gx, gy, gw, gh) in glasses:
-            cv2.rectangle(face_img, (gx, gy), (gx + gw, gy + gh), (0, 255, 0), 2)
-        
-        # If any glasses are detected, return True
-        if len(glasses) > 0:
-            return True  # Glasses detected
 
-    return False
+    
+    if len(eyes) > 0:
+        return False
+    else:
+        return True
+
+
+
 
 
 def detect_facial_hairs(face_img):
@@ -120,7 +118,7 @@ def extract_features(img, gender):
         "hair_type": hair_type,
         "hair_color": hair_color_hex,
         "facial_hair": facial_hair,
-        "mouth": pa.MouthType.CONCERNED,
+        "mouth": pa.MouthType.SMILE,
         "eye_type": pa.EyeType.DEFAULT,
         "eyebrow_type": pa.EyebrowType.DEFAULT_NATURAL,
         "nose_type": pa.NoseType.DEFAULT,
@@ -146,7 +144,7 @@ def create_avatar(features):
         facial_hair=features['facial_hair'],
         skin_color=features['skin_color'],
         hair_color=features['hair_color'],
-        accessory=pa.AccessoryType.NONE,
+        accessory=features['glasses'],
         clothing=pa.ClothingType.HOODIE,
         clothing_color=pa.ClothingColor.BLACK
     )
